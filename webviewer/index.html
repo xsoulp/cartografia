@@ -3,66 +3,86 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CIGEOE Terrain Web Viewer</title>
+    <title>Aligned Map Layer Viewer</title>
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="control-panel">
-        <div class="panel-block">
-          <p class="eyebrow">CIGEOE</p>
-          <h1>Terrain Web Viewer</h1>
+    <div class="page-shell">
+      <aside class="sidebar">
+        <div class="hero-card">
+          <p class="eyebrow">Cartografia</p>
+          <h1>Aligned Layer Viewer</h1>
           <p class="lede">
-            Load the generated terrain blankets in a browser and inspect them with orbit controls.
+            Select one or more rendered layers from <code>aligned_maps/</code> and inspect how they combine on the same sheet.
           </p>
         </div>
 
-        <div class="panel-block">
-          <label for="dataset-select">Dataset</label>
-          <select id="dataset-select">
-            <option value="full">Full Sheet</option>
-            <option value="center">Center Patch</option>
-          </select>
-        </div>
-
-        <div class="panel-block toggles">
-          <label class="toggle">
-            <input id="mesh-toggle" type="checkbox" checked>
-            <span>Show mesh</span>
-          </label>
-          <label class="toggle">
-            <input id="cloud-toggle" type="checkbox">
-            <span>Show point cloud</span>
-          </label>
-          <label class="toggle">
-            <input id="wireframe-toggle" type="checkbox">
-            <span>Wireframe mesh</span>
-          </label>
-        </div>
-
-        <div class="panel-block">
-          <label for="z-scale">Vertical exaggeration</label>
-          <input id="z-scale" type="range" min="1" max="8" step="0.25" value="2">
-          <div class="value-row">
-            <span>Scale</span>
-            <strong id="z-scale-value">2.00x</strong>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Layer Controls</h2>
+            <p>Choose the layers you want to overlay in the map view.</p>
           </div>
-        </div>
 
-        <div class="panel-block">
-          <button id="reload-button" type="button">Reload current dataset</button>
-          <p id="status" class="status">Loading full-sheet terrain…</p>
-        </div>
+          <label class="field">
+            <span>Search layers</span>
+            <input id="layer-search" type="search" placeholder="water, roads, vegetation...">
+          </label>
 
-        <div class="panel-block notes">
-          <h2>Tips</h2>
-          <p>Left drag to orbit, right drag to pan, scroll to zoom.</p>
-          <p>Serve this folder over HTTP from the repo root so the page can fetch the generated `.ply` and `.pcd` files.</p>
-        </div>
+          <div class="chip-row" id="category-filters">
+            <button class="chip is-active" type="button" data-category="all">All</button>
+            <button class="chip" type="button" data-category="area">Areas</button>
+            <button class="chip" type="button" data-category="line">Lines</button>
+            <button class="chip" type="button" data-category="point">Points</button>
+          </div>
+
+          <div class="button-grid">
+            <button id="show-core-button" type="button">Show Core Map</button>
+            <button id="clear-layers-button" type="button">Clear All</button>
+            <button id="show-all-button" type="button">Show All</button>
+            <button id="reset-view-button" type="button">Reset View</button>
+          </div>
+
+          <label class="toggle">
+            <input id="combined-toggle" type="checkbox">
+            <span>Show combined reference underlay</span>
+          </label>
+
+          <label class="field">
+            <span>Layer opacity</span>
+            <input id="opacity-slider" type="range" min="0.15" max="1" step="0.05" value="1">
+          </label>
+
+          <label class="field">
+            <span>Map zoom</span>
+            <input id="zoom-slider" type="range" min="0.35" max="3" step="0.05" value="1">
+          </label>
+
+          <div class="meta-row">
+            <span id="selected-count">0 layers selected</span>
+            <strong id="zoom-readout">100%</strong>
+          </div>
+
+          <div id="layer-list" class="layer-list"></div>
+        </section>
       </aside>
 
-      <main class="viewer-shell">
-        <canvas id="scene"></canvas>
+      <main class="workspace">
+        <section class="status-bar">
+          <div>
+            <p class="status-label">Active Selection</p>
+            <h2 id="selection-title">No layers selected</h2>
+          </div>
+          <p id="map-status" class="status-copy">
+            Select layers from the left to display them on the aligned map sheet.
+          </p>
+        </section>
+
+        <section class="map-card">
+          <div id="map-viewport" class="map-viewport">
+            <div class="map-atmosphere"></div>
+            <div id="map-stage" class="map-stage"></div>
+          </div>
+        </section>
       </main>
     </div>
 

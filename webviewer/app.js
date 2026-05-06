@@ -1,265 +1,420 @@
-import * as THREE from "https://unpkg.com/three@0.165.0/build/three.module.js";
-import { OrbitControls } from "https://unpkg.com/three@0.165.0/examples/jsm/controls/OrbitControls.js";
-import { PLYLoader } from "https://unpkg.com/three@0.165.0/examples/jsm/loaders/PLYLoader.js";
-import { PCDLoader } from "https://unpkg.com/three@0.165.0/examples/jsm/loaders/PCDLoader.js";
+const mapLayers = [
+  { name: "a_constr", label: "Construction Areas", kind: "area" },
+  { name: "a_folha", label: "Sheet Boundary", kind: "area" },
+  { name: "a_hidro", label: "Water Areas", kind: "area" },
+  { name: "a_terreno", label: "Terrain Areas", kind: "area" },
+  { name: "a_vegetacao", label: "Vegetation Areas", kind: "area" },
+  { name: "l_aceiro", label: "Firebreak Lines", kind: "line" },
+  { name: "l_curva_nivel", label: "Contour Lines", kind: "line" },
+  { name: "l_hidro", label: "Hydro Lines", kind: "line" },
+  { name: "l_lat", label: "Boundary Lines", kind: "line" },
+  { name: "l_muro_ater_desater", label: "Walls and Embankments", kind: "line" },
+  { name: "l_pontes", label: "Bridge Lines", kind: "line" },
+  { name: "l_verdes_diversos", label: "Green Feature Lines", kind: "line" },
+  { name: "l_vias", label: "Road Network", kind: "line" },
+  { name: "p_geral", label: "General Points", kind: "point" },
+  { name: "p_pcota", label: "Spot Heights", kind: "point" },
+  { name: "p_pt", label: "Reference Points", kind: "point" },
+  { name: "p_tpn", label: "Topographic Points", kind: "point" },
+  { name: "p_vg", label: "Geodetic Vertices", kind: "point" },
+  { name: "p_vias", label: "Road Points", kind: "point" },
+  { name: "p_workflow", label: "Workflow Points", kind: "point" },
+].map((layer) => ({
+  ...layer,
+  path: `../aligned_maps/${layer.name}.png`,
+}));
 
-const datasets = {
-  center: {
-    label: "Center 1 km Patch",
-    mesh: "../terrain3d/output/center_blanket_mesh.ply",
-    cloud: "../terrain3d/output/center_blanket_cloud.pcd",
-  },
-  full: {
-    label: "Full Sheet",
-    mesh: "../terrain3d/output/full_sheet_blanket_mesh.ply",
-    cloud: "../terrain3d/output/full_sheet_blanket_cloud.pcd",
-  },
+const coreSelection = [
+  "a_folha",
+  "a_hidro",
+  "a_vegetacao",
+  "l_curva_nivel",
+  "l_hidro",
+  "l_vias",
+  "p_pcota",
+];
+
+const searchInput = document.querySelector("#layer-search");
+const layerList = document.querySelector("#layer-list");
+const categoryFilters = document.querySelector("#category-filters");
+const showCoreButton = document.querySelector("#show-core-button");
+const clearLayersButton = document.querySelector("#clear-layers-button");
+const showAllButton = document.querySelector("#show-all-button");
+const resetViewButton = document.querySelector("#reset-view-button");
+const combinedToggle = document.querySelector("#combined-toggle");
+const opacitySlider = document.querySelector("#opacity-slider");
+const zoomSlider = document.querySelector("#zoom-slider");
+const selectedCount = document.querySelector("#selected-count");
+const zoomReadout = document.querySelector("#zoom-readout");
+const selectionTitle = document.querySelector("#selection-title");
+const mapStatus = document.querySelector("#map-status");
+const mapViewport = document.querySelector("#map-viewport");
+const mapStage = document.querySelector("#map-stage");
+
+const state = {
+  activeCategory: "all",
+  searchTerm: "",
+  zoom: Number(zoomSlider.value),
+  offsetX: 0,
+  offsetY: 0,
+  dragging: false,
+  dragStartX: 0,
+  dragStartY: 0,
+  originOffsetX: 0,
+  originOffsetY: 0,
+  selectedLayers: new Set(coreSelection),
+  layers: new Map(),
+  combined: null,
+  referenceBounds: null,
 };
 
-const canvas = document.querySelector("#scene");
-const datasetSelect = document.querySelector("#dataset-select");
-const meshToggle = document.querySelector("#mesh-toggle");
-const cloudToggle = document.querySelector("#cloud-toggle");
-const wireframeToggle = document.querySelector("#wireframe-toggle");
-const reloadButton = document.querySelector("#reload-button");
-const zScaleInput = document.querySelector("#z-scale");
-const zScaleValue = document.querySelector("#z-scale-value");
-const statusEl = document.querySelector("#status");
-
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x091217);
-scene.fog = new THREE.Fog(0x091217, 1200, 18000);
-
-const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 100000);
-camera.position.set(900, -1200, 850);
-
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.target.set(0, 0, 0);
-
-const hemi = new THREE.HemisphereLight(0xdbe8ef, 0x23353b, 1.2);
-scene.add(hemi);
-
-const sun = new THREE.DirectionalLight(0xfff3cf, 1.3);
-sun.position.set(1200, -900, 1800);
-scene.add(sun);
-
-const grid = new THREE.GridHelper(12000, 48, 0x5d7969, 0x294038);
-grid.rotation.x = Math.PI / 2;
-scene.add(grid);
-
-const axes = new THREE.AxesHelper(300);
-scene.add(axes);
-
-const loaders = {
-  mesh: new PLYLoader(),
-  cloud: new PCDLoader(),
-};
-
-let currentGroup = null;
-let currentDatasetKey = datasetSelect.value;
-
-function setStatus(message, tone = "info") {
-  statusEl.textContent = message;
-  statusEl.style.color = tone === "error" ? "#ef9a8d" : "#9fb2a8";
+function updateStageTransform() {
+  mapStage.style.transform = `translate(${state.offsetX}px, ${state.offsetY}px) scale(${state.zoom})`;
+  zoomReadout.textContent = `${Math.round(state.zoom * 100)}%`;
 }
 
-function setRecommendedLayerVisibility(datasetKey) {
-  if (datasetKey === "full" && !cloudToggle.dataset.userTouched) {
-    cloudToggle.checked = false;
-  }
-}
-
-function resize() {
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-  if (!width || !height) {
+function ensureLoaded(entry) {
+  if (!entry || entry.loaded || entry.loading) {
     return;
   }
-  renderer.setSize(width, height, false);
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
+
+  entry.loading = true;
+  entry.image.src = entry.path;
 }
 
-function clearCurrentGroup() {
-  if (!currentGroup) {
+function recordReferenceBounds(image) {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (!context) {
     return;
   }
-  scene.remove(currentGroup);
-  currentGroup.traverse((child) => {
-    if (child.geometry) {
-      child.geometry.dispose();
-    }
-    if (child.material) {
-      if (Array.isArray(child.material)) {
-        child.material.forEach((material) => material.dispose());
-      } else {
-        child.material.dispose();
+
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  context.drawImage(image, 0, 0);
+
+  const { data, width, height } = context.getImageData(0, 0, canvas.width, canvas.height);
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const alpha = data[(y * width + x) * 4 + 3];
+      if (!alpha) {
+        continue;
       }
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+  }
+
+  if (maxX < minX || maxY < minY) {
+    return;
+  }
+
+  state.referenceBounds = { minX, minY, maxX, maxY };
+}
+
+function fitReferenceBounds() {
+  const bounds = state.referenceBounds;
+  const viewportWidth = mapViewport.clientWidth;
+  const viewportHeight = mapViewport.clientHeight;
+
+  if (!bounds || !viewportWidth || !viewportHeight) {
+    state.zoom = 1;
+    state.offsetX = 0;
+    state.offsetY = 0;
+    zoomSlider.value = "1";
+    updateStageTransform();
+    return;
+  }
+
+  const boundsWidth = bounds.maxX - bounds.minX;
+  const boundsHeight = bounds.maxY - bounds.minY;
+  if (!boundsWidth || !boundsHeight) {
+    return;
+  }
+
+  const fitZoom = Math.min((viewportWidth * 0.98) / boundsWidth, (viewportHeight * 0.98) / boundsHeight);
+  state.zoom = Number(Math.min(3, Math.max(0.35, fitZoom)).toFixed(2));
+  zoomSlider.value = String(state.zoom);
+
+  const boundsCenterX = bounds.minX + boundsWidth / 2;
+  const boundsCenterY = bounds.minY + boundsHeight / 2;
+  state.offsetX = viewportWidth / 2 - boundsCenterX * state.zoom;
+  state.offsetY = viewportHeight / 2 - boundsCenterY * state.zoom;
+  updateStageTransform();
+}
+
+function resetView() {
+  fitReferenceBounds();
+}
+
+function activeLayers() {
+  return mapLayers.filter((layer) => state.selectedLayers.has(layer.name));
+}
+
+function updateStatus() {
+  const selected = activeLayers();
+  const count = selected.length;
+  selectedCount.textContent = `${count} layer${count === 1 ? "" : "s"} selected`;
+
+  if (!count) {
+    selectionTitle.textContent = "No layers selected";
+    mapStatus.textContent = "Select layers from the left to display them on the aligned map sheet.";
+    return;
+  }
+
+  if (count <= 3) {
+    selectionTitle.textContent = selected.map((layer) => layer.label).join(" + ");
+  } else {
+    selectionTitle.textContent = `${selected[0].label} + ${count - 1} more layers`;
+  }
+
+  mapStatus.textContent = combinedToggle.checked
+    ? "Selected layers are rendered over the combined reference underlay."
+    : "Selected layers are rendered directly from the transparent aligned PNG assets.";
+}
+
+function syncLayerVisibility() {
+  const opacity = Number(opacitySlider.value);
+
+  if (state.combined) {
+    if (combinedToggle.checked) {
+      ensureLoaded(state.combined);
+    }
+    state.combined.image.style.opacity = combinedToggle.checked ? "0.45" : "0";
+  }
+
+  state.layers.forEach((entry, name) => {
+    const isVisible = state.selectedLayers.has(name);
+    if (isVisible) {
+      ensureLoaded(entry);
+    }
+    entry.image.style.opacity = isVisible ? String(opacity) : "0";
+    entry.card.classList.toggle("is-selected", isVisible);
+    entry.checkbox.checked = isVisible;
+  });
+
+  updateStatus();
+}
+
+function applyFilter() {
+  const term = state.searchTerm.trim().toLowerCase();
+
+  state.layers.forEach((entry) => {
+    const matchesCategory = state.activeCategory === "all" || entry.kind === state.activeCategory;
+    const matchesSearch =
+      !term ||
+      entry.label.toLowerCase().includes(term) ||
+      entry.name.toLowerCase().includes(term) ||
+      entry.kind.toLowerCase().includes(term);
+
+    entry.card.classList.toggle("is-hidden", !(matchesCategory && matchesSearch));
+  });
+}
+
+function setSelection(layerNames) {
+  state.selectedLayers = new Set(layerNames);
+  syncLayerVisibility();
+}
+
+function buildLayerCard(layer) {
+  const card = document.createElement("label");
+  card.className = "layer-card";
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.checked = state.selectedLayers.has(layer.name);
+
+  const copy = document.createElement("div");
+  copy.className = "layer-copy";
+
+  const title = document.createElement("strong");
+  title.textContent = layer.label;
+
+  const meta = document.createElement("span");
+  meta.textContent = layer.name;
+
+  const swatch = document.createElement("span");
+  swatch.className = `swatch ${layer.kind}`;
+
+  const badge = document.createElement("span");
+  badge.className = "layer-kind";
+  badge.textContent = layer.kind;
+
+  copy.append(title, meta);
+  card.append(checkbox, copy, swatch, badge);
+
+  const image = document.createElement("img");
+  image.alt = layer.label;
+  image.loading = "lazy";
+  image.draggable = false;
+  mapStage.append(image);
+
+  const entry = {
+    ...layer,
+    card,
+    checkbox,
+    image,
+    loaded: false,
+    loading: false,
+  };
+
+  checkbox.addEventListener("change", () => {
+    if (checkbox.checked) {
+      state.selectedLayers.add(layer.name);
+    } else {
+      state.selectedLayers.delete(layer.name);
+    }
+    syncLayerVisibility();
+  });
+
+  image.addEventListener("load", () => {
+    entry.loaded = true;
+    entry.loading = false;
+    if (layer.name === "a_folha" && !state.referenceBounds) {
+      recordReferenceBounds(image);
+      fitReferenceBounds();
     }
   });
-  currentGroup = null;
+
+  image.addEventListener("error", () => {
+    entry.loading = false;
+    mapStatus.textContent = `Failed to load ${layer.name}.png from aligned_maps.`;
+  });
+
+  layerList.append(card);
+  state.layers.set(layer.name, entry);
 }
 
-function frameObject(object) {
-  const box = new THREE.Box3().setFromObject(object);
-  const size = box.getSize(new THREE.Vector3());
-  const center = box.getCenter(new THREE.Vector3());
-  const maxDim = Math.max(size.x, size.y, size.z);
+function buildApp() {
+  const combinedImage = document.createElement("img");
+  combinedImage.alt = "Combined reference map";
+  combinedImage.loading = "lazy";
+  combinedImage.draggable = false;
+  mapStage.append(combinedImage);
 
-  controls.target.copy(center);
-  camera.near = Math.max(0.1, maxDim / 5000);
-  camera.far = Math.max(10000, maxDim * 40);
-  camera.position.set(
-    center.x + maxDim * 0.9,
-    center.y - maxDim * 1.2,
-    center.z + maxDim * 0.7
-  );
-  camera.updateProjectionMatrix();
-  controls.update();
-}
+  state.combined = {
+    image: combinedImage,
+    path: "../combined_map.png",
+    loaded: false,
+    loading: false,
+  };
 
-function applyVerticalScale() {
-  const scale = Number(zScaleInput.value);
-  zScaleValue.textContent = `${scale.toFixed(2)}x`;
-  if (currentGroup) {
-    currentGroup.scale.set(1, 1, scale);
-    frameObject(currentGroup);
+  combinedImage.addEventListener("load", () => {
+    state.combined.loaded = true;
+    state.combined.loading = false;
+  });
+
+  combinedImage.addEventListener("error", () => {
+    state.combined.loading = false;
+    mapStatus.textContent = "Combined reference image could not be loaded.";
+  });
+
+  for (const layer of mapLayers) {
+    buildLayerCard(layer);
   }
+
+  applyFilter();
+  syncLayerVisibility();
+  resetView();
 }
 
-async function loadDataset(datasetKey) {
-  currentDatasetKey = datasetKey;
-  setRecommendedLayerVisibility(datasetKey);
-  const dataset = datasets[datasetKey];
-  clearCurrentGroup();
-  setStatus(`Loading ${dataset.label.toLowerCase()} terrain…`);
+searchInput.addEventListener("input", () => {
+  state.searchTerm = searchInput.value;
+  applyFilter();
+});
 
-  const group = new THREE.Group();
-  group.name = `${datasetKey}-terrain`;
-
-  try {
-    const jobs = [];
-    const loadedKinds = [];
-    const failedKinds = [];
-
-    if (meshToggle.checked) {
-      jobs.push(
-        loaders.mesh
-          .loadAsync(dataset.mesh)
-          .then((geometry) => {
-            geometry.computeVertexNormals();
-            const material = new THREE.MeshStandardMaterial({
-              color: 0xc6ab6c,
-              roughness: 0.95,
-              metalness: 0.02,
-              wireframe: wireframeToggle.checked,
-            });
-            const mesh = new THREE.Mesh(geometry, material);
-            group.add(mesh);
-            loadedKinds.push("mesh");
-          })
-          .catch((error) => {
-            console.error("Mesh load failed:", error);
-            failedKinds.push("mesh");
-          })
-      );
-    }
-
-    if (cloudToggle.checked) {
-      jobs.push(
-        loaders.cloud
-          .loadAsync(dataset.cloud)
-          .then((points) => {
-            points.material = new THREE.PointsMaterial({
-              color: 0xf5efcf,
-              size: datasetKey === "full" ? 2.0 : 5.0,
-              sizeAttenuation: true,
-            });
-            group.add(points);
-            loadedKinds.push("point cloud");
-          })
-          .catch((error) => {
-            console.error("Point cloud load failed:", error);
-            failedKinds.push("point cloud");
-          })
-      );
-    }
-
-    if (!jobs.length) {
-      setStatus("Enable at least one layer type to load the terrain.", "error");
-      return;
-    }
-
-    await Promise.all(jobs);
-
-    if (!group.children.length) {
-      setStatus(
-        "Nothing loaded. If this keeps happening, keep only the mesh enabled or verify that the page has internet access for the Three.js modules.",
-        "error"
-      );
-      return;
-    }
-
-    currentGroup = group;
-    scene.add(group);
-    applyVerticalScale();
-
-    if (failedKinds.length) {
-      setStatus(
-        `${dataset.label} loaded with ${loadedKinds.join(" + ")}. Failed: ${failedKinds.join(", ")}.`,
-        "info"
-      );
-    } else {
-      setStatus(`${dataset.label} loaded with ${loadedKinds.join(" + ")}.`);
-    }
-  } catch (error) {
-    console.error(error);
-    setStatus(
-      "Failed to load the terrain files. Serve the repo over HTTP and check that the output files exist.",
-      "error"
-    );
+categoryFilters.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-category]");
+  if (!button) {
+    return;
   }
+
+  state.activeCategory = button.dataset.category;
+  for (const chip of categoryFilters.querySelectorAll(".chip")) {
+    chip.classList.toggle("is-active", chip === button);
+  }
+  applyFilter();
+});
+
+showCoreButton.addEventListener("click", () => {
+  setSelection(coreSelection);
+});
+
+clearLayersButton.addEventListener("click", () => {
+  setSelection([]);
+});
+
+showAllButton.addEventListener("click", () => {
+  setSelection(mapLayers.map((layer) => layer.name));
+});
+
+combinedToggle.addEventListener("change", syncLayerVisibility);
+
+opacitySlider.addEventListener("input", syncLayerVisibility);
+
+zoomSlider.addEventListener("input", () => {
+  state.zoom = Number(zoomSlider.value);
+  updateStageTransform();
+});
+
+resetViewButton.addEventListener("click", resetView);
+
+mapViewport.addEventListener("pointerdown", (event) => {
+  if (!state.selectedLayers.size && !combinedToggle.checked) {
+    return;
+  }
+
+  state.dragging = true;
+  state.dragStartX = event.clientX;
+  state.dragStartY = event.clientY;
+  state.originOffsetX = state.offsetX;
+  state.originOffsetY = state.offsetY;
+  mapViewport.classList.add("dragging");
+  mapViewport.setPointerCapture(event.pointerId);
+});
+
+mapViewport.addEventListener("pointermove", (event) => {
+  if (!state.dragging) {
+    return;
+  }
+
+  state.offsetX = state.originOffsetX + (event.clientX - state.dragStartX);
+  state.offsetY = state.originOffsetY + (event.clientY - state.dragStartY);
+  updateStageTransform();
+});
+
+function stopDragging(event) {
+  if (event?.pointerId !== undefined) {
+    mapViewport.releasePointerCapture(event.pointerId);
+  }
+  state.dragging = false;
+  mapViewport.classList.remove("dragging");
 }
 
-function animate() {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-}
+mapViewport.addEventListener("pointerup", stopDragging);
+mapViewport.addEventListener("pointercancel", stopDragging);
 
-datasetSelect.addEventListener("change", () => {
-  loadDataset(datasetSelect.value);
+mapViewport.addEventListener(
+  "wheel",
+  (event) => {
+    event.preventDefault();
+    const delta = event.deltaY > 0 ? -0.1 : 0.1;
+    state.zoom = Number(Math.min(3, Math.max(0.35, state.zoom + delta)).toFixed(2));
+    zoomSlider.value = String(state.zoom);
+    updateStageTransform();
+  },
+  { passive: false }
+);
+
+window.addEventListener("resize", () => {
+  fitReferenceBounds();
 });
 
-meshToggle.addEventListener("change", () => {
-  loadDataset(currentDatasetKey);
-});
-
-cloudToggle.addEventListener("change", () => {
-  cloudToggle.dataset.userTouched = "true";
-  loadDataset(currentDatasetKey);
-});
-
-wireframeToggle.addEventListener("change", () => {
-  loadDataset(currentDatasetKey);
-});
-
-reloadButton.addEventListener("click", () => {
-  loadDataset(currentDatasetKey);
-});
-
-zScaleInput.addEventListener("input", () => {
-  applyVerticalScale();
-});
-
-window.addEventListener("resize", resize);
-
-resize();
-applyVerticalScale();
-loadDataset(currentDatasetKey);
-animate();
+buildApp();

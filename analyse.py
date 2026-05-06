@@ -403,6 +403,13 @@ def collect_bounds(layers: list[LayerData]) -> tuple[float, float, float, float]
     return min_x, max_x, min_y, max_y
 
 
+def find_layer_bounds(layers: list[LayerData], layer_name: str) -> tuple[float, float, float, float] | None:
+    for layer in layers:
+        if layer.name == layer_name and layer.records:
+            return collect_bounds([layer])
+    return None
+
+
 def expand_bounds(
     min_x: float, max_x: float, min_y: float, max_y: float, padding_ratio: float = 0.12
 ) -> tuple[float, float, float, float]:
@@ -469,6 +476,18 @@ def plot_layer(ax, records: list[ShapeRecord], shape_type: int, layer_name: str)
 
 
 def finalize_map(ax, fig, output_path: Path, view_bounds: tuple[float, float, float, float]) -> None:
+    finalize_map_with_options(ax, fig, output_path, view_bounds)
+
+
+def finalize_map_with_options(
+    ax,
+    fig,
+    output_path: Path,
+    view_bounds: tuple[float, float, float, float],
+    *,
+    transparent: bool = False,
+    show_frame: bool = True,
+) -> None:
     view_min_x, view_max_x, view_min_y, view_max_y = view_bounds
     ax.set_xlim(view_min_x, view_max_x)
     ax.set_ylim(view_min_y, view_max_y)
@@ -476,12 +495,16 @@ def finalize_map(ax, fig, output_path: Path, view_bounds: tuple[float, float, fl
     ax.set_xticks([])
     ax.set_yticks([])
 
-    for spine in ax.spines.values():
-        spine.set_linewidth(1.5)
-        spine.set_color("#3d3a2f")
+    if show_frame:
+        for spine in ax.spines.values():
+            spine.set_linewidth(1.5)
+            spine.set_color("#3d3a2f")
+    else:
+        for spine in ax.spines.values():
+            spine.set_visible(False)
 
     fig.subplots_adjust(left=0.03, right=0.97, bottom=0.03, top=0.97)
-    fig.savefig(output_path, dpi=fig.dpi)
+    fig.savefig(output_path, dpi=fig.dpi, transparent=transparent)
     plt.close(fig)
 
 
@@ -493,6 +516,8 @@ def render_map(
     grid_spacing: float,
     layer_name: str,
     view_bounds: tuple[float, float, float, float] | None = None,
+    transparent_background: bool = False,
+    include_decorations: bool = True,
 ) -> None:
     all_points = [point for record in records for point in record.points]
     min_x = min(x for x, _ in all_points)
@@ -502,8 +527,12 @@ def render_map(
 
     fig, ax = plt.subplots(figsize=(10, 10))
     fig.set_dpi(dpi)
-    fig.patch.set_facecolor("#d9ccb1")
-    ax.set_facecolor("#efe6c9")
+    if transparent_background:
+        fig.patch.set_alpha(0)
+        ax.set_facecolor("none")
+    else:
+        fig.patch.set_facecolor("#d9ccb1")
+        ax.set_facecolor("#efe6c9")
 
     if view_bounds is None:
         view_bounds = expand_bounds(min_x, max_x, min_y, max_y)
@@ -512,20 +541,29 @@ def render_map(
     view_width = view_max_x - view_min_x
     view_height = view_max_y - view_min_y
 
-    add_grid(ax, view_min_x, view_max_x, view_min_y, view_max_y, grid_spacing)
+    if include_decorations:
+        add_grid(ax, view_min_x, view_max_x, view_min_y, view_max_y, grid_spacing)
     plot_layer(ax, records, shape_type, layer_name)
 
-    add_scale_bar(ax, view_min_x, view_min_y, view_width, view_height)
-    add_north_arrow(ax, view_min_x, view_min_y, view_width, view_height)
-    add_title_block(
+    if include_decorations:
+        add_scale_bar(ax, view_min_x, view_min_y, view_width, view_height)
+        add_north_arrow(ax, view_min_x, view_min_y, view_width, view_height)
+        add_title_block(
+            ax,
+            records[0].attributes if records else {},
+            "CRS: Portuguese National Grid",
+            layer_display_name(layer_name),
+            shape_type_label(shape_type),
+            len(records),
+        )
+    finalize_map_with_options(
         ax,
-        records[0].attributes if records else {},
-        "CRS: Portuguese National Grid",
-        layer_display_name(layer_name),
-        shape_type_label(shape_type),
-        len(records),
+        fig,
+        output_path,
+        view_bounds,
+        transparent=transparent_background,
+        show_frame=include_decorations,
     )
-    finalize_map(ax, fig, output_path, view_bounds)
 
 
 def render_combined_map(
@@ -567,8 +605,13 @@ def render_aligned_layer_maps(
     dpi: int,
     grid_spacing: float,
 ) -> None:
-    min_x, max_x, min_y, max_y = collect_bounds(layers)
-    view_bounds = expand_bounds(min_x, max_x, min_y, max_y)
+    folha_bounds = find_layer_bounds(layers, "a_folha")
+    if folha_bounds is not None:
+        min_x, max_x, min_y, max_y = folha_bounds
+        view_bounds = expand_bounds(min_x, max_x, min_y, max_y, padding_ratio=0.01)
+    else:
+        min_x, max_x, min_y, max_y = collect_bounds(layers)
+        view_bounds = expand_bounds(min_x, max_x, min_y, max_y, padding_ratio=0.01)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for layer in layers:
@@ -581,6 +624,8 @@ def render_aligned_layer_maps(
             grid_spacing,
             layer.name,
             view_bounds=view_bounds,
+            transparent_background=True,
+            include_decorations=False,
         )
         print(f"Aligned map written to: {output_path}")
 

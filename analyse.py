@@ -503,7 +503,10 @@ def finalize_map_with_options(
         for spine in ax.spines.values():
             spine.set_visible(False)
 
-    fig.subplots_adjust(left=0.03, right=0.97, bottom=0.03, top=0.97)
+    if transparent and not show_frame:
+        fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+    else:
+        fig.subplots_adjust(left=0.03, right=0.97, bottom=0.03, top=0.97)
     fig.savefig(output_path, dpi=fig.dpi, transparent=transparent)
     plt.close(fig)
 
@@ -525,7 +528,24 @@ def render_map(
     min_y = min(y for _, y in all_points)
     max_y = max(y for _, y in all_points)
 
-    fig, ax = plt.subplots(figsize=(10, 10))
+    if view_bounds is None:
+        view_bounds = expand_bounds(min_x, max_x, min_y, max_y)
+
+    view_min_x, view_max_x, view_min_y, view_max_y = view_bounds
+    view_width = view_max_x - view_min_x
+    view_height = view_max_y - view_min_y
+
+    if transparent_background and not include_decorations:
+        aspect_ratio = view_width / view_height if view_height else 1.0
+        base_size = 10
+        if aspect_ratio >= 1:
+            fig_size = (base_size, base_size / aspect_ratio)
+        else:
+            fig_size = (base_size * aspect_ratio, base_size)
+    else:
+        fig_size = (10, 10)
+
+    fig, ax = plt.subplots(figsize=fig_size)
     fig.set_dpi(dpi)
     if transparent_background:
         fig.patch.set_alpha(0)
@@ -533,13 +553,6 @@ def render_map(
     else:
         fig.patch.set_facecolor("#d9ccb1")
         ax.set_facecolor("#efe6c9")
-
-    if view_bounds is None:
-        view_bounds = expand_bounds(min_x, max_x, min_y, max_y)
-
-    view_min_x, view_max_x, view_min_y, view_max_y = view_bounds
-    view_width = view_max_x - view_min_x
-    view_height = view_max_y - view_min_y
 
     if include_decorations:
         add_grid(ax, view_min_x, view_max_x, view_min_y, view_max_y, grid_spacing)
@@ -608,10 +621,10 @@ def render_aligned_layer_maps(
     folha_bounds = find_layer_bounds(layers, "a_folha")
     if folha_bounds is not None:
         min_x, max_x, min_y, max_y = folha_bounds
-        view_bounds = expand_bounds(min_x, max_x, min_y, max_y, padding_ratio=0.01)
+        view_bounds = (min_x, max_x, min_y, max_y)
     else:
         min_x, max_x, min_y, max_y = collect_bounds(layers)
-        view_bounds = expand_bounds(min_x, max_x, min_y, max_y, padding_ratio=0.01)
+        view_bounds = (min_x, max_x, min_y, max_y)
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for layer in layers:

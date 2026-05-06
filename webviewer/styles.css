@@ -59,9 +59,12 @@ code {
   display: grid;
   grid-template-columns: minmax(320px, 400px) 1fr;
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
+  height: 100vh;
   padding: 24px;
   background: linear-gradient(180deg, rgba(8, 20, 25, 0.95), rgba(10, 25, 29, 0.9));
   border-right: 1px solid var(--border);
@@ -386,7 +389,7 @@ input[type="range"] {
   top: 0;
   left: 0;
   width: 3000px;
-  height: 3000px;
+  height: 1875px;
   transform-origin: center center;
   user-select: none;
 }

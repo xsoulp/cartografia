@@ -66,11 +66,17 @@ const state = {
   layers: new Map(),
   combined: null,
   referenceBounds: null,
+  referenceSize: null,
 };
 
 function updateStageTransform() {
   mapStage.style.transform = `translate(${state.offsetX}px, ${state.offsetY}px) scale(${state.zoom})`;
   zoomReadout.textContent = `${Math.round(state.zoom * 100)}%`;
+}
+
+function setStageSize(width, height) {
+  mapStage.style.width = `${width}px`;
+  mapStage.style.height = `${height}px`;
 }
 
 function ensureLoaded(entry) {
@@ -83,6 +89,12 @@ function ensureLoaded(entry) {
 }
 
 function recordReferenceBounds(image) {
+  state.referenceSize = {
+    width: image.naturalWidth,
+    height: image.naturalHeight,
+  };
+  setStageSize(image.naturalWidth, image.naturalHeight);
+
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d", { willReadFrequently: true });
   if (!context) {

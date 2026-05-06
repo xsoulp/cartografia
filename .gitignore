@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+
+.codex
+.agents/
+
+myenv/
+
+terrain3d/build/
+terrain3d/output/

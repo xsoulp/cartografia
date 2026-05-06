@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CIGEOE Terrain Web Viewer</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="control-panel">
+        <div class="panel-block">
+          <p class="eyebrow">CIGEOE</p>
+          <h1>Terrain Web Viewer</h1>
+          <p class="lede">
+            Load the generated terrain blankets in a browser and inspect them with orbit controls.
+          </p>
+        </div>
+
+        <div class="panel-block">
+          <label for="dataset-select">Dataset</label>
+          <select id="dataset-select">
+            <option value="full">Full Sheet</option>
+            <option value="center">Center Patch</option>
+          </select>
+        </div>
+
+        <div class="panel-block toggles">
+          <label class="toggle">
+            <input id="mesh-toggle" type="checkbox" checked>
+            <span>Show mesh</span>
+          </label>
+          <label class="toggle">
+            <input id="cloud-toggle" type="checkbox">
+            <span>Show point cloud</span>
+          </label>
+          <label class="toggle">
+            <input id="wireframe-toggle" type="checkbox">
+            <span>Wireframe mesh</span>
+          </label>
+        </div>
+
+        <div class="panel-block">
+          <label for="z-scale">Vertical exaggeration</label>
+          <input id="z-scale" type="range" min="1" max="8" step="0.25" value="2">
+          <div class="value-row">
+            <span>Scale</span>
+            <strong id="z-scale-value">2.00x</strong>
+          </div>
+        </div>
+
+        <div class="panel-block">
+          <button id="reload-button" type="button">Reload current dataset</button>
+          <p id="status" class="status">Loading full-sheet terrain…</p>
+        </div>
+
+        <div class="panel-block notes">
+          <h2>Tips</h2>
+          <p>Left drag to orbit, right drag to pan, scroll to zoom.</p>
+          <p>Serve this folder over HTTP from the repo root so the page can fetch the generated `.ply` and `.pcd` files.</p>
+        </div>
+      </aside>
+
+      <main class="viewer-shell">
+        <canvas id="scene"></canvas>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -175,18 +175,19 @@ Current counts:
 
 ## Open the Viewer
 
-Open the full-sheet blanket with all construction objects:
+Open the contour-based full-sheet blanket with roads and all construction objects:
 
 ```bash
 ./terrain3d/build/terrain_viewer \
-  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply
 ```
 
 By default the viewer loads:
 
-- The terrain blanket mesh.
+- The contour-based terrain blanket mesh.
 - Assumed-height building prisms from `constructions_assumed_6m.obj`.
 - Actual-height building prisms from `constructions_actual_height.obj`.
+- Road planes from `road_artifacts/roads.obj`.
 - Stable random colors per individual building.
 
 Viewer controls:
@@ -200,8 +201,8 @@ Optional: show the point cloud too:
 
 ```bash
 ./terrain3d/build/terrain_viewer \
-  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply \
-  --cloud terrain3d/output/full_sheet_building_level_blanket_cloud_10m.pcd \
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply \
+  --cloud terrain3d/output/full_sheet_blanket_cloud_10m.pcd \
   --show-cloud
 ```
 
@@ -209,7 +210,7 @@ Optional: open one construction OBJ layer manually:
 
 ```bash
 ./terrain3d/build/terrain_viewer \
-  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply \
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply \
   --constructions terrain3d/output/construction_artifacts/constructions_all.obj
 ```
 

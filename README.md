@@ -113,6 +113,24 @@ Outputs:
 - `terrain3d/output/full_sheet_blanket_cloud_10m.pcd`
 - `terrain3d/output/full_sheet_blanket_mesh_10m.ply`
 
+Building-level full sheet at `10 m` spacing:
+
+```bash
+python3 terrain3d/scripts/extract_construction_levels.py
+
+./terrain3d/build/terrain_blanket \
+  --input terrain3d/data/full_sheet_construction_levels.xyz \
+  --grid-step 10 \
+  --cloud terrain3d/output/full_sheet_building_level_blanket_cloud_10m.pcd \
+  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply
+```
+
+Outputs:
+
+- `terrain3d/data/full_sheet_construction_levels.xyz`
+- `terrain3d/output/full_sheet_building_level_blanket_cloud_10m.pcd`
+- `terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply`
+
 The blanket generator uses inverse-distance weighting over nearest contour samples and exports both:
 
 - PCD point cloud
@@ -123,7 +141,9 @@ The blanket generator uses inverse-distance weighting over nearest contour sampl
 Build construction prisms from `dataset/a_constr.shp`:
 
 ```bash
-python3 terrain3d/scripts/build_construction_artifacts.py
+python3 terrain3d/scripts/build_construction_artifacts.py \
+  --terrain-support terrain3d/data/full_sheet_construction_levels.xyz \
+  --terrain-mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply
 ```
 
 This script:
@@ -131,7 +151,7 @@ This script:
 - Uses `a_constr` polygon rings as building footprints.
 - Uses `h_campo` as real height where populated.
 - Assumes `6 m` height where `h_campo` is zero or missing.
-- Clamps every building base to sit at least `5 cm` above the contour-derived blanket.
+- Clamps every building base to sit at least `5 cm` above the displayed building-level blanket.
 - Triangulates roof/base faces and keeps side walls as quads, so buildings are simple prismatic polyhedra.
 
 Outputs are written to:
@@ -159,7 +179,7 @@ Open the full-sheet blanket with all construction objects:
 
 ```bash
 ./terrain3d/build/terrain_viewer \
-  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply
+  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply
 ```
 
 By default the viewer loads:
@@ -180,8 +200,8 @@ Optional: show the point cloud too:
 
 ```bash
 ./terrain3d/build/terrain_viewer \
-  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply \
-  --cloud terrain3d/output/full_sheet_blanket_cloud_10m.pcd \
+  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply \
+  --cloud terrain3d/output/full_sheet_building_level_blanket_cloud_10m.pcd \
   --show-cloud
 ```
 
@@ -189,7 +209,7 @@ Optional: open one construction OBJ layer manually:
 
 ```bash
 ./terrain3d/build/terrain_viewer \
-  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply \
+  --mesh terrain3d/output/full_sheet_building_level_blanket_mesh_10m.ply \
   --constructions terrain3d/output/construction_artifacts/constructions_all.obj
 ```
 

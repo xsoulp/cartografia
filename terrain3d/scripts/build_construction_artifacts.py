@@ -7,6 +7,7 @@ import argparse
 import json
 import math
 import re
+import struct
 from collections import defaultdict
 from pathlib import Path
 
@@ -52,6 +53,12 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("terrain3d/data/full_sheet_contours.xyz"),
         help="Contour support XYZ used to clamp construction bases above the blanket surface.",
+    )
+    parser.add_argument(
+        "--terrain-mesh",
+        type=Path,
+        default=Path("terrain3d/output/full_sheet_blanket_mesh_10m.ply"),
+        help="Displayed terrain mesh PLY used for final construction-base clamping when present.",
     )
     parser.add_argument(
         "--base-clearance",
@@ -200,6 +207,78 @@ class TerrainIndex:
             weighted_sum += weight * sample_z
             weight_total += weight
         return weighted_sum / weight_total
+
+
+class DisplayMeshSurface:
+    def __init__(self, mesh_path: Path, fallback: TerrainIndex):
+        self.fallback = fallback
+        self.vertices = self.load_binary_ply_vertices(mesh_path)
+        if not self.vertices:
+            raise RuntimeError(f"No vertices loaded from {mesh_path}")
+
+        first_y = round(self.vertices[0][1], 6)
+        self.width = 0
+        for _x, y, _z in self.vertices:
+            if round(y, 6) != first_y:
+                break
+            self.width += 1
+        if self.width < 2 or len(self.vertices) % self.width != 0:
+            raise RuntimeError(f"Could not infer terrain mesh grid dimensions from {mesh_path}")
+
+        self.height = len(self.vertices) // self.width
+        self.min_x = self.vertices[0][0]
+        self.min_y = self.vertices[0][1]
+        self.step_x = self.vertices[1][0] - self.vertices[0][0]
+        self.step_y = self.vertices[self.width][1] - self.vertices[0][1]
+
+    @staticmethod
+    def load_binary_ply_vertices(mesh_path: Path) -> list[tuple[float, float, float]]:
+        with mesh_path.open("rb") as mesh_file:
+            vertex_count = None
+            while True:
+                line = mesh_file.readline()
+                if not line:
+                    raise RuntimeError(f"PLY header missing end_header in {mesh_path}")
+                decoded = line.decode("ascii", errors="replace").strip()
+                if decoded.startswith("element vertex "):
+                    vertex_count = int(decoded.split()[2])
+                if decoded == "end_header":
+                    break
+            if vertex_count is None:
+                raise RuntimeError(f"PLY header missing vertex count in {mesh_path}")
+            vertex_data = mesh_file.read(vertex_count * 12)
+        return list(struct.iter_unpack("<fff", vertex_data))
+
+    def interpolate_idw(self, x: float, y: float) -> float:
+        max_x = self.min_x + (self.width - 1) * self.step_x
+        max_y = self.min_y + (self.height - 1) * self.step_y
+        if x < self.min_x or x > max_x or y < self.min_y or y > max_y:
+            return self.fallback.interpolate_idw(x, y)
+
+        col = min(self.width - 2, max(0, math.floor((x - self.min_x) / self.step_x)))
+        row = min(self.height - 2, max(0, math.floor((y - self.min_y) / self.step_y)))
+        x0 = self.min_x + col * self.step_x
+        y0 = self.min_y + row * self.step_y
+        u = (x - x0) / self.step_x
+        v = (y - y0) / self.step_y
+
+        top_left = self.vertices[row * self.width + col]
+        top_right = self.vertices[row * self.width + col + 1]
+        bottom_left = self.vertices[(row + 1) * self.width + col]
+        bottom_right = self.vertices[(row + 1) * self.width + col + 1]
+
+        # terrain_blanket writes each cell as TL-BL-TR and TR-BL-BR.
+        if u + v <= 1.0:
+            return (
+                top_left[2]
+                + v * (bottom_left[2] - top_left[2])
+                + u * (top_right[2] - top_left[2])
+            )
+        return (
+            bottom_right[2]
+            + (1.0 - u) * (bottom_left[2] - bottom_right[2])
+            + (1.0 - v) * (top_right[2] - bottom_right[2])
+        )
 
 
 def clamp_rings_to_blanket(
@@ -375,6 +454,11 @@ def main() -> None:
     center_y = (min_y + max_y) / 2.0
     terrain_samples = load_terrain_samples(args.terrain_support)
     terrain_index = TerrainIndex(terrain_samples)
+    terrain_surface = (
+        DisplayMeshSurface(args.terrain_mesh, terrain_index)
+        if args.terrain_mesh.exists()
+        else terrain_index
+    )
 
     constructions = shapefile.Reader(str(args.constructions), encoding="latin1")
     combined_all_lines = [
@@ -425,7 +509,7 @@ def main() -> None:
             continue
         rings = clamp_rings_to_blanket(
             rings,
-            terrain_index,
+            terrain_surface,
             center_x,
             center_y,
             args.base_clearance,
@@ -533,6 +617,7 @@ def main() -> None:
                 "assumed_height_m": args.assumed_height,
                 "base_elevation_source": "max(POLYGONZ geometry, terrain blanket IDW + base_clearance)",
                 "terrain_support": str(args.terrain_support),
+                "terrain_mesh": str(args.terrain_mesh) if args.terrain_mesh.exists() else None,
                 "base_clearance_m": args.base_clearance,
                 "local_origin": {"world_x": center_x, "world_y": center_y},
                 "artifact_count": len(manifest),

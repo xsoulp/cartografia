@@ -270,7 +270,7 @@ int main(int argc, char** argv) {
         vtkObject::GlobalWarningDisplayOff();
 
         auto viewer = pcl::make_shared<pcl::visualization::PCLVisualizer>("Terrain Viewer");
-        viewer->setBackgroundColor(0.08, 0.08, 0.1);
+        viewer->setBackgroundColor(0.68, 0.84, 1.0);
         viewer->addCoordinateSystem(10.0);
         viewer->initCameraParameters();
 
@@ -370,6 +370,11 @@ int main(int argc, char** argv) {
         );
 
         viewer->resetCamera();
+        viewer->setCameraPosition(
+            0.0, -8500.0, 3200.0,
+            0.0, 0.0, 60.0,
+            0.0, 0.0, 1.0
+        );
         std::cout
             << "Opening terrain viewer window.\n"
             << "Controls: drag to orbit, mouse wheel to zoom, right drag to pan.\n"

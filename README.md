@@ -1,8 +1,14 @@
-# CIGEOE Map Layers
+# CIGEOE Map Layers and 3D Terrain
 
-This repository contains a small clipped vector dataset in `dataset/` plus rendered previews in `maps/` and `aligned_maps/`.
+This repository contains a clipped CIGEOE vector dataset in `dataset/`, rendered layer previews in `aligned_maps/`, and a small 3D terrain pipeline in `terrain3d/`.
 
-## Naming Scheme
+The 3D workflow currently uses:
+
+- `dataset/l_curva_nivel.shp` for ground heights from contour-line Z values.
+- `dataset/a_folha.shp` for the map-sheet extent and local coordinate origin.
+- `dataset/a_constr.shp` for construction/building footprint polygons.
+
+## Input Dataset
 
 Each shapefile name uses a geometry prefix plus a theme name:
 
@@ -16,126 +22,208 @@ Examples:
 - `l_vias` = road/path linework
 - `p_vg` = geodetic or survey control points
 
-## Themes
-
 ### Polygon Layers
 
-- `a_constr`: constructed areas and building footprints. This is the main built-feature polygon layer. Sample feature types include `A_Casa`, `A_Ruinas`, `A_Grande_construcao`, `A_Campo_de_jogos`, and `A_Estufa`. Important fields: `source`, `Shape_Area`, and `h_campo` (likely height, but mostly zero).
-- `a_folha`: map sheet extent. This looks like the polygon for the clipped map tile or sheet boundary. Important fields: `num_folha`, `nom_folha`, `Shape_Area`.
+- `a_constr`: constructed areas and building footprints. This is the main built-feature polygon layer. Sample feature types include `A_Casa`, `A_Ruinas`, `A_Grande_construcao`, `A_Campo_de_jogos`, and `A_Estufa`. Important fields: `source`, `Shape_Area`, and `h_campo`. Most `h_campo` values are zero, so this pipeline assumes `6 m` height for those buildings.
+- `a_folha`: map sheet extent. Used to derive the full-sheet target area and local coordinate origin.
 - `a_hidro`: hydrographic water-area polygons. Sample features include `A_Rio_de_duas_margens`, `A_Limite_de_pantano`, and `A_Lagoa`.
-- `a_terreno`: terrain-related polygon area. In this clip it contains `A_Limite_de_areeiro`, so it appears to capture a terrain or land-surface class boundary rather than general elevation zones.
+- `a_terreno`: terrain-related polygon area. In this clip it contains `A_Limite_de_areeiro`.
 - `a_vegetacao`: vegetation and cultivated-cover polygons. Sample features include `A_Arvoredo_denso`, `A_Vinha`, `A_Pomar_vinha`, `A_Arvoredo_esparso`, and `A_Pomar`.
 
 ### Line Layers
 
-- `l_aceiro`: firebreak or cleared-strip lines. The name `aceiro` usually refers to a firebreak or vegetation-cleared lane.
-- `l_curva_nivel`: contour lines. Sample features include regular and master contours such as `L_Curva_de_nivel_Par`, `L_Curva_de_nivel_Impar`, and `L_Curva_de_nivel_Mestra`.
+- `l_curva_nivel`: contour lines. This is the terrain-height source used by the 3D pipeline. Sample features include regular and master contours such as `L_Curva_de_nivel_Par`, `L_Curva_de_nivel_Impar`, and `L_Curva_de_nivel_Mestra`.
 - `l_hidro`: hydrographic linework. This is the main water-line network and includes `L_Linha_de_agua`, `L_Linha_agua_auxiliar`, and `L_Represa`.
-- `l_lat`: lattice or grid linework. The metadata is sparse, so this likely represents auxiliary cartographic linework rather than a physical theme.
-- `l_muro_ater_desater`: walls, embankments, and cuttings. Sample features include `L_Aterro`, `L_Desaterro`, `L_Muro_de_alvenaria_em_via`, and retaining-wall variants. Field `h_campo` may store feature height in some cases.
-- `l_pontes`: bridges, overpasses, and tunnels. Sample features include concrete bridges, timber bridges, `L_Passagem_superior`, and `L_Tunel_eixo`.
-- `l_verdes_diversos`: miscellaneous green or boundary features. In this clip the features are `L_Sebe_ou_valado`, meaning hedge or fenced boundary lines.
-- `l_vias`: roads, streets, tracks, and access routes. Sample features include `L_Arruamento`, `L_Caminho_carreteiro`, `L_Acesso_auto`, `L_Estrada_estreita`, and `L_Estrada_larga`. This is the main transport line layer.
-- `l_workflow`: internal workflow/editing line layer. This clip has zero records, and its fields look like production status columns rather than map content.
+- `l_vias`: roads, streets, tracks, and access routes. Sample features include `L_Arruamento`, `L_Caminho_carreteiro`, `L_Acesso_auto`, `L_Estrada_estreita`, and `L_Estrada_larga`.
+- `l_aceiro`: firebreak or cleared-strip lines.
+- `l_lat`: lattice/grid or auxiliary cartographic linework.
+- `l_muro_ater_desater`: walls, embankments, and cuttings. Field `h_campo` may store feature height in some cases.
+- `l_pontes`: bridges, overpasses, and tunnels.
+- `l_verdes_diversos`: miscellaneous green or boundary features.
+- `l_workflow`: internal workflow/editing line layer.
 
 ### Point Layers
 
-- `p_geral`: general topographic points. Sample features include `P_Poco`, `P_Tanque`, `P_Ruinas`, `P_Aqueduto_em_via`, and `P_Chafariz_ou_fonte`.
-- `p_pcota`: elevation spot points or point-cota markers. The name strongly suggests spot heights, but the clip metadata only exposes a placeholder attribute.
-- `p_pt`: auxiliary point layer with sparse metadata. The name is not self-explanatory from the schema alone.
-- `p_tpn`: named point features with fields `nome` and `tipo`. This likely stores named toponyms or place-name points.
-- `p_vg`: geodetic/survey landmark points. Sample features include `P_VG_deposito_agua` and `P_VG_igreja`. This layer has many coordinate and elevation-related fields such as `Cota_Verti` and `Cota_Terre`.
-- `p_vias`: road-related point markers. Sample features are `P_Quilometro_em_caminho_de_ferro` and `P_Quilometro_em_estrada`, so this looks like route or kilometer markers.
-- `p_workflow`: internal workflow/editing point layer. The fields describe production steps rather than mapped terrain objects.
+- `p_geral`: general topographic points such as wells, tanks, ruins, aqueducts, and fountains.
+- `p_pcota`: elevation spot points or point-cota markers. Not currently used by the 3D terrain pipeline.
+- `p_vg`: geodetic/survey landmark points with elevation-related fields such as `Cota_Verti` and `Cota_Terre`. Not currently used by the 3D terrain pipeline.
+- `p_pt`: auxiliary point layer with sparse metadata.
+- `p_tpn`: named point features with fields `nome` and `tipo`.
+- `p_vias`: road-related point markers.
+- `p_workflow`: internal workflow/editing point layer.
 
-## Notes
+Useful field notes:
 
-- Layer names and most attributes are in Portuguese.
-- `source` is usually the most useful field for identifying the mapped feature class.
+- `source` is usually the most useful field for identifying feature class.
 - `Shape_Area` and `Shape_Leng` are geometry-derived area/length fields.
-- `h_campo` appears in some layers and likely means feature height, but it is sparsely populated in this clip.
-- `workflow` layers appear to be production-tracking artifacts rather than map themes intended for analysis.
+- `h_campo` is used as explicit building height where populated.
+- Workflow layers are production-tracking artifacts rather than map content.
 
-## Quick Reference
+## Produce Terrain Surface and Point Cloud
 
-- Built environment: `a_constr`, `l_muro_ater_desater`, `l_pontes`, `p_geral`
-- Hydrography: `a_hidro`, `l_hidro`
-- Vegetation and land cover: `a_vegetacao`, `a_terreno`, `l_verdes_diversos`
-- Transport: `l_vias`, `p_vias`
-- Relief and surveying: `l_curva_nivel`, `p_pcota`, `p_vg`
-- Map framing and metadata: `a_folha`, `l_workflow`, `p_workflow`
+First extract contour support samples from `l_curva_nivel`.
 
-## 3D Terrain Prototype
-
-There is now a small C++/PCL prototype in `terrain3d/` that builds a simple 3D terrain blanket from the contour layer.
-
-What it does:
-
-- Uses `dataset/a_folha.shp` to find the map-sheet center.
-- Extracts contour support samples from `dataset/l_curva_nivel.shp`.
-- Keeps the final terrain patch at `1000 m x 1000 m`, centered on the sheet center.
-- Uses a larger `1600 m x 1600 m` support window around that center so interpolation remains well supported near the patch edges.
-- Interpolates a regular terrain grid with inverse-distance weighting and exports both a point cloud and a mesh.
-
-Files:
-
-- Extractor: `terrain3d/scripts/extract_center_contours.py`
-- C++ source: `terrain3d/src/terrain_blanket.cpp`
-- Viewer source: `terrain3d/src/terrain_viewer.cpp`
-- Build config: `terrain3d/CMakeLists.txt`
-- Extracted support points: `terrain3d/data/center_contours.xyz`
-- Generated outputs: `terrain3d/output/center_blanket_cloud.pcd`, `terrain3d/output/center_blanket_mesh.ply`
-- Viewer binary: `terrain3d/build/terrain_viewer`
-
-Build and run from the repo root:
+For the center `1000 m x 1000 m` patch:
 
 ```bash
-./myenv/bin/python terrain3d/scripts/extract_center_contours.py
-cmake -S terrain3d -B terrain3d/build
-cmake --build terrain3d/build -j4
+python3 terrain3d/scripts/extract_center_contours.py
+```
+
+This writes:
+
+- `terrain3d/data/center_contours.xyz`
+
+For the whole map sheet:
+
+```bash
+python3 terrain3d/scripts/extract_center_contours.py \
+  --whole-sheet \
+  --output terrain3d/data/full_sheet_contours.xyz
+```
+
+This writes:
+
+- `terrain3d/data/full_sheet_contours.xyz`
+
+Then generate the terrain blanket mesh and point cloud.
+
+Center patch at `1 m` spacing:
+
+```bash
 ./terrain3d/build/terrain_blanket
-./terrain3d/build/terrain_viewer
 ```
 
-Current prototype settings:
+Outputs:
 
-- Output patch: `1000 m x 1000 m`
-- Support window: `1600 m x 1600 m`
-- Grid spacing: `1 m`
-- Interpolation: inverse-distance weighting over the nearest contour samples
-- Current local relief in this test patch: approximately `50 m` to `80 m`
+- `terrain3d/output/center_blanket_cloud.pcd`
+- `terrain3d/output/center_blanket_mesh.ply`
 
-## Web Viewer
-
-There is also a static browser viewer in `webviewer/` that can load the generated terrain mesh and point cloud.
-
-Files:
-
-- Page: `webviewer/index.html`
-- App logic: `webviewer/app.js`
-- Styles: `webviewer/styles.css`
-
-It can load:
-
-- Center patch terrain
-- Full-sheet terrain
-- Mesh and point cloud together or separately
-- Adjustable vertical exaggeration
-
-Run it from the repo root with a simple local server:
+Full sheet preview at `10 m` spacing:
 
 ```bash
-python3 -m http.server 8000
+./terrain3d/build/terrain_blanket \
+  --input terrain3d/data/full_sheet_contours.xyz \
+  --grid-step 10 \
+  --cloud terrain3d/output/full_sheet_blanket_cloud_10m.pcd \
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply
 ```
 
-Then open:
+Outputs:
+
+- `terrain3d/output/full_sheet_blanket_cloud_10m.pcd`
+- `terrain3d/output/full_sheet_blanket_mesh_10m.ply`
+
+The blanket generator uses inverse-distance weighting over nearest contour samples and exports both:
+
+- PCD point cloud
+- PLY triangle mesh
+
+## Produce Construction Objects
+
+Build construction prisms from `dataset/a_constr.shp`:
+
+```bash
+python3 terrain3d/scripts/build_construction_artifacts.py
+```
+
+This script:
+
+- Uses `a_constr` polygon rings as building footprints.
+- Uses `h_campo` as real height where populated.
+- Assumes `6 m` height where `h_campo` is zero or missing.
+- Clamps every building base to sit at least `5 cm` above the contour-derived blanket.
+- Triangulates roof/base faces and keeps side walls as quads, so buildings are simple prismatic polyhedra.
+
+Outputs are written to:
 
 ```text
-http://127.0.0.1:8000/webviewer/
+terrain3d/output/construction_artifacts/
 ```
 
-Notes:
+Important combined outputs:
 
-- The page fetches files from `terrain3d/output/`, so it should be served over HTTP rather than opened directly as a `file://` page.
-- The current implementation uses Three.js browser modules.
-# cartografia
+- `constructions_all.obj`: all construction prisms
+- `constructions_actual_height.obj`: buildings with real `h_campo`
+- `constructions_assumed_6m.obj`: buildings with assumed `6 m` height
+- `manifest.json`: per-building metadata, height source, base/roof elevations, area, bbox, and OBJ filename
+
+Current counts:
+
+- `7,283` total construction objects
+- `49` objects with actual `h_campo`
+- `7,234` objects using assumed `6 m` height
+
+## Open the Viewer
+
+Open the full-sheet blanket with all construction objects:
+
+```bash
+./terrain3d/build/terrain_viewer \
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply
+```
+
+By default the viewer loads:
+
+- The terrain blanket mesh.
+- Assumed-height building prisms from `constructions_assumed_6m.obj`.
+- Actual-height building prisms from `constructions_actual_height.obj`.
+- Stable random colors per individual building.
+
+Viewer controls:
+
+- Drag to orbit.
+- Mouse wheel to zoom.
+- Right drag to pan.
+- Press `s` to hide/show the blanket surface while keeping buildings visible.
+
+Optional: show the point cloud too:
+
+```bash
+./terrain3d/build/terrain_viewer \
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply \
+  --cloud terrain3d/output/full_sheet_blanket_cloud_10m.pcd \
+  --show-cloud
+```
+
+Optional: open one construction OBJ layer manually:
+
+```bash
+./terrain3d/build/terrain_viewer \
+  --mesh terrain3d/output/full_sheet_blanket_mesh_10m.ply \
+  --constructions terrain3d/output/construction_artifacts/constructions_all.obj
+```
+
+## Compilation
+
+The C++/PCL code that needs compilation is:
+
+- `terrain3d/src/terrain_blanket.cpp`
+- `terrain3d/src/terrain_viewer.cpp`
+
+Build configuration:
+
+- `terrain3d/CMakeLists.txt`
+
+Ubuntu dependencies:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libpcl-dev python3-pyshp cmake build-essential
+```
+
+Configure and compile from the repository root:
+
+```bash
+cmake -S terrain3d -B terrain3d/build
+cmake --build terrain3d/build -j4
+```
+
+Compiled binaries:
+
+- `terrain3d/build/terrain_blanket`
+- `terrain3d/build/terrain_viewer`
+
+Python scripts do not need compilation:
+
+- `terrain3d/scripts/extract_center_contours.py`
+- `terrain3d/scripts/build_construction_artifacts.py`

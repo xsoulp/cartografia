@@ -1,0 +1,77 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <world name="cluster_10_close">
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <ambient>0.65 0.65 0.65 1</ambient>
+      <background>0.7 0.82 1 1</background>
+      <shadows>false</shadows>
+    </scene>
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>0 -120 75 0 0.55 1.5708</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+    <light name="sun" type="directional">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 1000 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.2 -1</direction>
+    </light>
+    <include>
+      <name>building_3099_assumed_a_casa</name>
+      <uri>model://building_3099_assumed_a_casa</uri>
+      <pose>-6.886200 -18.948700 3.288000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_7062_assumed_a_casa</name>
+      <uri>model://building_7062_assumed_a_casa</uri>
+      <pose>18.842800 -15.905200 1.648000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_6936_assumed_a_casa</name>
+      <uri>model://building_6936_assumed_a_casa</uri>
+      <pose>29.150800 9.339300 0.000000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_7096_assumed_a_casa</name>
+      <uri>model://building_7096_assumed_a_casa</uri>
+      <pose>-21.933700 -26.682200 4.941000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_3590_assumed_a_casa</name>
+      <uri>model://building_3590_assumed_a_casa</uri>
+      <pose>29.966300 -25.943200 0.382000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_6337_assumed_a_casa</name>
+      <uri>model://building_6337_assumed_a_casa</uri>
+      <pose>-25.224200 14.061800 5.640000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_5936_assumed_a_casa</name>
+      <uri>model://building_5936_assumed_a_casa</uri>
+      <pose>12.565300 28.461300 5.792000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_3118_assumed_a_casa</name>
+      <uri>model://building_3118_assumed_a_casa</uri>
+      <pose>-31.192700 11.026800 6.105604 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_5057_assumed_a_casa</name>
+      <uri>model://building_5057_assumed_a_casa</uri>
+      <pose>31.378300 19.962300 2.832000 0 0 0</pose>
+    </include>
+    <include>
+      <name>building_2108_assumed_a_casa</name>
+      <uri>model://building_2108_assumed_a_casa</uri>
+      <pose>-36.666700 4.627800 5.988365 0 0 0</pose>
+    </include>
+  </world>
+</sdf>

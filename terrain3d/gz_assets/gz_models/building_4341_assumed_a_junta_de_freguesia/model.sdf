@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="building_4341_assumed_a_junta_de_freguesia">
+    <static>true</static>
+    <link name="building_link">
+      <visual name="building_visual">
+        <geometry>
+          <mesh>
+            <uri>model://building_4341_assumed_a_junta_de_freguesia/meshes/construction_4341_assumed_A_Junta_de_freguesia_h6m.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    <collision name="building_collision">
+      <geometry>
+        <mesh>
+          <uri>model://building_4341_assumed_a_junta_de_freguesia/meshes/construction_4341_assumed_A_Junta_de_freguesia_h6m.obj</uri>
+        </mesh>
+      </geometry>
+    </collision>
+    </link>
+  </model>
+</sdf>

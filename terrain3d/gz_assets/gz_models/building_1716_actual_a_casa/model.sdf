@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="building_1716_actual_a_casa">
+    <static>true</static>
+    <link name="building_link">
+      <visual name="building_visual">
+        <geometry>
+          <mesh>
+            <uri>model://building_1716_actual_a_casa/meshes/construction_1716_actual_A_Casa_h5m.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    <collision name="building_collision">
+      <geometry>
+        <mesh>
+          <uri>model://building_1716_actual_a_casa/meshes/construction_1716_actual_A_Casa_h5m.obj</uri>
+        </mesh>
+      </geometry>
+    </collision>
+    </link>
+  </model>
+</sdf>

@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="building_0160_assumed_a_limite_de_etar">
+    <static>true</static>
+    <link name="building_link">
+      <visual name="building_visual">
+        <geometry>
+          <mesh>
+            <uri>model://building_0160_assumed_a_limite_de_etar/meshes/construction_0160_assumed_A_Limite_de_ETAR_h6m.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    <collision name="building_collision">
+      <geometry>
+        <mesh>
+          <uri>model://building_0160_assumed_a_limite_de_etar/meshes/construction_0160_assumed_A_Limite_de_ETAR_h6m.obj</uri>
+        </mesh>
+      </geometry>
+    </collision>
+    </link>
+  </model>
+</sdf>

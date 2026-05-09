@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <world name="building_1373_plus_5">
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type="adiabatic"/>
+    <scene>
+      <ambient>0.65 0.65 0.65 1</ambient>
+      <background>0.7 0.82 1 1</background>
+      <shadows>false</shadows>
+    </scene>
+    <light name="sun" type="directional">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 1000 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.2 -1</direction>
+    </light>
+    <include>
+      <name>near1373_building_1373_actual_a_casa</name>
+      <uri>model://near1373_building_1373_actual_a_casa</uri>
+      <pose>0.000000 -0.000000 0.000000 0 0 0</pose>
+    </include>
+    <include>
+      <name>near1373_building_4451_assumed_a_casa</name>
+      <uri>model://near1373_building_4451_assumed_a_casa</uri>
+      <pose>-28.425500 -98.089500 8.910599 0 0 0</pose>
+    </include>
+    <include>
+      <name>near1373_building_0385_assumed_a_casa</name>
+      <uri>model://near1373_building_0385_assumed_a_casa</uri>
+      <pose>71.367000 -94.845500 12.012514 0 0 0</pose>
+    </include>
+    <include>
+      <name>near1373_building_0315_assumed_a_casa</name>
+      <uri>model://near1373_building_0315_assumed_a_casa</uri>
+      <pose>-45.887000 -112.530500 4.604499 0 0 0</pose>
+    </include>
+    <include>
+      <name>near1373_building_0099_assumed_a_grande_construcao</name>
+      <uri>model://near1373_building_0099_assumed_a_grande_construcao</uri>
+      <pose>6.668500 -145.238500 8.480349 0 0 0</pose>
+    </include>
+    <include>
+      <name>near1373_building_5735_assumed_a_casa</name>
+      <uri>model://near1373_building_5735_assumed_a_casa</uri>
+      <pose>-85.327000 -147.896000 7.874616 0 0 0</pose>
+    </include>
+  </world>
+</sdf>

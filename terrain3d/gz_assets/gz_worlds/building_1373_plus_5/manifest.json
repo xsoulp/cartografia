@@ -1,0 +1,198 @@
+{
+  "source": "dataset/a_constr.shp",
+  "height_field": "h_campo",
+  "assumed_height_m": 6.0,
+  "base_elevation_source": "max(POLYGONZ geometry, terrain blanket IDW + base_clearance)",
+  "terrain_support": "terrain3d/data/full_sheet_construction_levels.xyz",
+  "terrain_mesh": "terrain3d/output/full_sheet_buildings_based_blanket_mesh.ply",
+  "base_clearance_m": 0.05,
+  "local_origin": {
+    "world_x": 172001.03484999994,
+    "world_y": 402500.14460000023
+  },
+  "artifact_count": 6,
+  "actual_height_count": 1,
+  "assumed_height_count": 5,
+  "artifacts": [
+    {
+      "shape_index": 1373,
+      "source": "A_Casa",
+      "height_kind": "actual",
+      "h_campo_m": 8.0,
+      "height_m": 8.0,
+      "base_z_min_m": 83.0499771118164,
+      "base_z_max_m": 83.0499771118164,
+      "roof_z_min_m": 91.0499771118164,
+      "roof_z_max_m": 91.0499771118164,
+      "shape_area_m2": 802.649630029,
+      "shape_length_m": 116.234717738,
+      "parts": 1,
+      "vertices_per_part": [
+        4
+      ],
+      "world_bbox": [
+        171054.5959999999,
+        403391.9079999998,
+        171090.25200000033,
+        403416.6850000005
+      ],
+      "local_bbox": [
+        -946.438850000035,
+        891.7633999995887,
+        -910.7828499996103,
+        916.5404000002891
+      ],
+      "obj": "construction_1373_actual_A_Casa_h8m.obj"
+    },
+    {
+      "shape_index": 4451,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 91.96057649999716,
+      "base_z_max_m": 92.4155764999972,
+      "roof_z_min_m": 97.96057649999716,
+      "roof_z_max_m": 98.4155764999972,
+      "shape_area_m2": 197.73889549,
+      "shape_length_m": 61.58278884,
+      "parts": 1,
+      "vertices_per_part": [
+        6
+      ],
+      "world_bbox": [
+        171034.11199999973,
+        403299.4820000008,
+        171053.88499999978,
+        403312.93200000003
+      ],
+      "local_bbox": [
+        -966.9228500002064,
+        799.3374000005424,
+        -947.1498500001617,
+        812.7873999997973
+      ],
+      "obj": "construction_4451_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 385,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 95.06249104060207,
+      "base_z_max_m": 95.26557649999722,
+      "roof_z_min_m": 101.06249104060207,
+      "roof_z_max_m": 101.26557649999722,
+      "shape_area_m2": 396.250475994,
+      "shape_length_m": 81.8912935413,
+      "parts": 1,
+      "vertices_per_part": [
+        4
+      ],
+      "world_bbox": [
+        171131.66700000037,
+        403293.9509999994,
+        171155.91500000004,
+        403324.9509999994
+      ],
+      "local_bbox": [
+        -869.3678499995731,
+        793.8063999991864,
+        -845.1198499999009,
+        824.8063999991864
+      ],
+      "obj": "construction_0385_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 315,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 87.65447660681163,
+      "base_z_max_m": 88.87957649999714,
+      "roof_z_min_m": 93.65447660681163,
+      "roof_z_max_m": 94.87957649999714,
+      "shape_area_m2": 246.905106011,
+      "shape_length_m": 64.8718887214,
+      "parts": 1,
+      "vertices_per_part": [
+        6
+      ],
+      "world_bbox": [
+        171018.87799999956,
+        403281.01999999955,
+        171034.19600000046,
+        403302.5120000001
+      ],
+      "local_bbox": [
+        -982.1568500003777,
+        780.8753999993205,
+        -966.8388499994762,
+        802.3673999998719
+      ],
+      "obj": "construction_0315_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 99,
+      "source": "A_Grande_construcao",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 91.53032643090641,
+      "base_z_max_m": 92.7475764999972,
+      "roof_z_min_m": 97.53032643090641,
+      "roof_z_max_m": 98.7475764999972,
+      "shape_area_m2": 4064.04094107,
+      "shape_length_m": 282.228877619,
+      "parts": 1,
+      "vertices_per_part": [
+        11
+      ],
+      "world_bbox": [
+        171044.8150000004,
+        403216.8969999999,
+        171113.3700000001,
+        403301.2190000005
+      ],
+      "local_bbox": [
+        -956.2198499995284,
+        716.7523999996483,
+        -887.6648499998264,
+        801.0744000002742
+      ],
+      "obj": "construction_0099_assumed_A_Grande_construcao_h6m.obj"
+    },
+    {
+      "shape_index": 5735,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 90.92459360084108,
+      "base_z_max_m": 91.47819290544844,
+      "roof_z_min_m": 96.92459360084108,
+      "roof_z_max_m": 97.47819290544844,
+      "shape_area_m2": 2774.63676004,
+      "shape_length_m": 247.859673945,
+      "parts": 1,
+      "vertices_per_part": [
+        6
+      ],
+      "world_bbox": [
+        170962.0719999997,
+        403209.20600000024,
+        171012.12200000044,
+        403303.59500000067
+      ],
+      "local_bbox": [
+        -1038.9628500002436,
+        709.061400000006,
+        -988.9128499994986,
+        803.4504000004381
+      ],
+      "obj": "construction_5735_assumed_A_Casa_h6m.obj"
+    }
+  ]
+}

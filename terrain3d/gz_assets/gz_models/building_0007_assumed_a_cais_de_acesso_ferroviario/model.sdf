@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="building_0007_assumed_a_cais_de_acesso_ferroviario">
+    <static>true</static>
+    <link name="building_link">
+      <visual name="building_visual">
+        <geometry>
+          <mesh>
+            <uri>model://building_0007_assumed_a_cais_de_acesso_ferroviario/meshes/construction_0007_assumed_A_Cais_de_acesso_ferroviario_h6m.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    <collision name="building_collision">
+      <geometry>
+        <mesh>
+          <uri>model://building_0007_assumed_a_cais_de_acesso_ferroviario/meshes/construction_0007_assumed_A_Cais_de_acesso_ferroviario_h6m.obj</uri>
+        </mesh>
+      </geometry>
+    </collision>
+    </link>
+  </model>
+</sdf>

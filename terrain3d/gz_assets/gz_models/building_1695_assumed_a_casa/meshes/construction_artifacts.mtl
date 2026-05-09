@@ -1,0 +1,29 @@
+newmtl actual_wall
+Ka 0.28 0.28 0.28
+Kd 0.62 0.62 0.62
+Ks 0.06 0.06 0.06
+
+newmtl actual_roof
+Ka 0.42 0.18 0.08
+Kd 0.72 0.33 0.16
+Ks 0.08 0.08 0.08
+
+newmtl actual_base
+Ka 0.18 0.18 0.18
+Kd 0.45 0.45 0.45
+Ks 0.04 0.04 0.04
+
+newmtl assumed_wall
+Ka 0.28 0.28 0.28
+Kd 0.62 0.62 0.62
+Ks 0.06 0.06 0.06
+
+newmtl assumed_roof
+Ka 0.42 0.18 0.08
+Kd 0.72 0.33 0.16
+Ks 0.08 0.08 0.08
+
+newmtl assumed_base
+Ka 0.18 0.18 0.18
+Kd 0.45 0.45 0.45
+Ks 0.04 0.04 0.04

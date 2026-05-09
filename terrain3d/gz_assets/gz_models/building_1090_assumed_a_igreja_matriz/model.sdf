@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <model name="building_1090_assumed_a_igreja_matriz">
+    <static>true</static>
+    <link name="building_link">
+      <visual name="building_visual">
+        <geometry>
+          <mesh>
+            <uri>model://building_1090_assumed_a_igreja_matriz/meshes/construction_1090_assumed_A_Igreja_matriz_h6m.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    <collision name="building_collision">
+      <geometry>
+        <mesh>
+          <uri>model://building_1090_assumed_a_igreja_matriz/meshes/construction_1090_assumed_A_Igreja_matriz_h6m.obj</uri>
+        </mesh>
+      </geometry>
+    </collision>
+    </link>
+  </model>
+</sdf>

@@ -1,0 +1,327 @@
+{
+  "source_manifest": "dataset/a_constr.shp",
+  "artifact_count": 10,
+  "local_origin": {
+    "world_x": 172001.03484999994,
+    "world_y": 402500.14460000023
+  },
+  "window_local_bbox": [
+    817.13135,
+    -1801.1119,
+    937.13135,
+    -1681.1119
+  ],
+  "world_pose_offset": [
+    877.13135,
+    -1741.1119,
+    30.282576499997163
+  ],
+  "artifacts": [
+    {
+      "shape_index": 3099,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 33.57057649999717,
+      "base_z_max_m": 37.378576499997166,
+      "roof_z_min_m": 39.57057649999717,
+      "roof_z_max_m": 43.378576499997166,
+      "shape_area_m2": 207.781939495,
+      "shape_length_m": 73.7364722162,
+      "parts": 1,
+      "vertices_per_part": [
+        15
+      ],
+      "world_bbox": [
+        172865.49600000028,
+        400726.74899999984,
+        172877.06400000025,
+        400753.41899999976
+      ],
+      "local_bbox": [
+        864.4611500003375,
+        -1773.3956000003964,
+        876.0291500003077,
+        -1746.7256000004709
+      ],
+      "obj": "construction_3099_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 7062,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 31.930576499997187,
+      "base_z_max_m": 37.57857649999721,
+      "roof_z_min_m": 37.93057649999719,
+      "roof_z_max_m": 43.57857649999721,
+      "shape_area_m2": 578.897533994,
+      "shape_length_m": 138.099423055,
+      "parts": 1,
+      "vertices_per_part": [
+        20
+      ],
+      "world_bbox": [
+        172880.91700000037,
+        400725.73000000045,
+        172913.1009999998,
+        400760.5250000004
+      ],
+      "local_bbox": [
+        879.8821500004269,
+        -1774.4145999997854,
+        912.0661499998532,
+        -1739.61959999986
+      ],
+      "obj": "construction_7062_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 6936,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 30.282576499997163,
+      "base_z_max_m": 34.49057649999713,
+      "roof_z_min_m": 36.28257649999716,
+      "roof_z_max_m": 40.49057649999713,
+      "shape_area_m2": 249.482560495,
+      "shape_length_m": 94.8650507635,
+      "parts": 1,
+      "vertices_per_part": [
+        12
+      ],
+      "world_bbox": [
+        172889.93400000036,
+        400761.1420000009,
+        172924.7000000002,
+        400775.60199999996
+      ],
+      "local_bbox": [
+        888.8991500004195,
+        -1739.0025999993086,
+        923.6651500002481,
+        -1724.5426000002772
+      ],
+      "obj": "construction_6936_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 7096,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 35.22357649999719,
+      "base_z_max_m": 39.01557649999722,
+      "roof_z_min_m": 41.22357649999719,
+      "roof_z_max_m": 45.01557649999722,
+      "shape_area_m2": 242.523128005,
+      "shape_length_m": 77.8557632952,
+      "parts": 1,
+      "vertices_per_part": [
+        21
+      ],
+      "world_bbox": [
+        172847.99199999962,
+        400721.0189999994,
+        172864.47300000023,
+        400743.68200000003
+      ],
+      "local_bbox": [
+        846.9571499996819,
+        -1779.1256000008434,
+        863.4381500002928,
+        -1756.4626000002027
+      ],
+      "obj": "construction_7096_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 3590,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 30.664576499997224,
+      "base_z_max_m": 33.40357649999714,
+      "roof_z_min_m": 36.664576499997224,
+      "roof_z_max_m": 39.40357649999714,
+      "shape_area_m2": 323.866998002,
+      "shape_length_m": 93.7639774945,
+      "parts": 1,
+      "vertices_per_part": [
+        14
+      ],
+      "world_bbox": [
+        172893.25399999972,
+        400718.19400000013,
+        172923.01099999994,
+        400747.9849999994
+      ],
+      "local_bbox": [
+        892.2191499997862,
+        -1781.9506000000983,
+        921.9761500000022,
+        -1752.1596000008285
+      ],
+      "obj": "construction_3590_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 6337,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 35.92257649999715,
+      "base_z_max_m": 41.090576499997155,
+      "roof_z_min_m": 41.92257649999715,
+      "roof_z_max_m": 47.090576499997155,
+      "shape_area_m2": 682.162299995,
+      "shape_length_m": 194.267123514,
+      "parts": 1,
+      "vertices_per_part": [
+        35
+      ],
+      "world_bbox": [
+        172832.0839999998,
+        400756.76400000043,
+        172873.7999999998,
+        400789.42500000075
+      ],
+      "local_bbox": [
+        831.0491499998607,
+        -1743.3805999998003,
+        872.7651499998756,
+        -1710.7195999994874
+      ],
+      "obj": "construction_6337_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 5936,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 36.07457649999719,
+      "base_z_max_m": 41.642576499997176,
+      "roof_z_min_m": 42.07457649999719,
+      "roof_z_max_m": 47.642576499997176,
+      "shape_area_m2": 643.488099009,
+      "shape_length_m": 119.095421527,
+      "parts": 1,
+      "vertices_per_part": [
+        17
+      ],
+      "world_bbox": [
+        172876.4210000001,
+        400768.2410000004,
+        172905.04200000037,
+        400806.7469999995
+      ],
+      "local_bbox": [
+        875.3861500001512,
+        -1731.903599999845,
+        904.0071500004269,
+        -1693.3976000007242
+      ],
+      "obj": "construction_5936_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 3118,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 36.38818033341643,
+      "base_z_max_m": 36.603015289575794,
+      "roof_z_min_m": 42.38818033341643,
+      "roof_z_max_m": 42.603015289575794,
+      "shape_area_m2": 20.5696880025,
+      "shape_length_m": 18.4107009418,
+      "parts": 1,
+      "vertices_per_part": [
+        4
+      ],
+      "world_bbox": [
+        172844.08299999963,
+        400768.0050000008,
+        172849.86400000006,
+        400772.11400000006
+      ],
+      "local_bbox": [
+        843.0481499996968,
+        -1732.139599999413,
+        848.8291500001214,
+        -1728.0306000001729
+      ],
+      "obj": "construction_3118_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 5057,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 33.114576499997156,
+      "base_z_max_m": 33.2425764999972,
+      "roof_z_min_m": 39.114576499997156,
+      "roof_z_max_m": 39.2425764999972,
+      "shape_area_m2": 13.4045114997,
+      "shape_length_m": 14.9486067865,
+      "parts": 1,
+      "vertices_per_part": [
+        4
+      ],
+      "world_bbox": [
+        172907.53000000026,
+        400776.7589999996,
+        172911.55900000036,
+        400781.2310000006
+      ],
+      "local_bbox": [
+        906.4951500003226,
+        -1723.38560000062,
+        910.5241500004195,
+        -1718.9135999996215
+      ],
+      "obj": "construction_5057_assumed_A_Casa_h6m.obj"
+    },
+    {
+      "shape_index": 2108,
+      "source": "A_Casa",
+      "height_kind": "assumed",
+      "h_campo_m": 0.0,
+      "height_m": 6.0,
+      "base_z_min_m": 36.27094150218182,
+      "base_z_max_m": 36.53088410037077,
+      "roof_z_min_m": 42.27094150218182,
+      "roof_z_max_m": 42.53088410037077,
+      "shape_area_m2": 25.6745900042,
+      "shape_length_m": 20.8942108526,
+      "parts": 1,
+      "vertices_per_part": [
+        4
+      ],
+      "world_bbox": [
+        172838.23900000006,
+        400761.6199999992,
+        172844.75999999978,
+        400765.7009999994
+      ],
+      "local_bbox": [
+        837.2041500001214,
+        -1738.524600001052,
+        843.7251499998383,
+        -1734.4436000008136
+      ],
+      "obj": "construction_2108_assumed_A_Casa_h6m.obj"
+    }
+  ],
+  "world_bbox": [
+    172832.0839999998,
+    400718.19400000013,
+    172924.7000000002,
+    400806.7469999995
+  ]
+}
